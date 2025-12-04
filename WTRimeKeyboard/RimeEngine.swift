@@ -6,10 +6,6 @@ protocol InputEngine {
     func clear()
 }
 
-protocol RimeNativeBridge {
-    func search(for input: String, limit: Int) -> [String]
-}
-
 final class RimeEngine: InputEngine {
     static let shared = RimeEngine()
 
@@ -17,6 +13,7 @@ final class RimeEngine: InputEngine {
     private var nativeBridge: RimeNativeBridge?
     private var cache: [String: [String]] = [:]
     private let queue = DispatchQueue(label: "com.wtkeyboard.rime", qos: .userInitiated)
+    private let userPhraseStore = UserPhraseStore()
 
     private init() {
         loadBundledLexicon()
@@ -55,6 +52,7 @@ final class RimeEngine: InputEngine {
         bucket.insert(candidate, at: 0)
         lexicon[normalized] = bucket
         cache[normalized] = bucket
+        userPhraseStore?.addCandidate(candidate, for: normalized)
     }
 
     func clear() {
@@ -65,11 +63,13 @@ final class RimeEngine: InputEngine {
         let data = try Data(contentsOf: url)
         let entries = try JSONDecoder().decode([LexiconEntry].self, from: data)
         buildLexicon(from: entries)
+        mergeUserPhrasesIntoLexicon()
         cache.removeAll()
     }
 
     private func loadBundledLexicon() {
         guard let url = Bundle.main.url(forResource: "rime_lexicon", withExtension: "json") else {
+            mergeUserPhrasesIntoLexicon()
             return
         }
         do {
@@ -79,6 +79,7 @@ final class RimeEngine: InputEngine {
         } catch {
             print("[RimeEngine] Failed to load bundled lexicon: \(error)")
         }
+        mergeUserPhrasesIntoLexicon()
     }
 
     private func buildLexicon(from entries: [LexiconEntry]) {
@@ -117,9 +118,29 @@ final class RimeEngine: InputEngine {
         value.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
             .replacingOccurrences(of: " ", with: "")
     }
+
+    private func mergeUserPhrasesIntoLexicon() {
+        guard let snapshot = userPhraseStore?.snapshot(), !snapshot.isEmpty else { return }
+        lexicon.mergeSnapshot(snapshot)
+    }
 }
 
 private struct LexiconEntry: Decodable {
     let syllable: String
     let candidates: [String]
+}
+
+private extension Dictionary where Key == String, Value == [String] {
+    mutating func mergeSnapshot(_ snapshot: [String: [String]]) {
+        for (key, phrases) in snapshot {
+            var bucket = self[key] ?? []
+            for phrase in phrases.reversed() {
+                if let index = bucket.firstIndex(of: phrase) {
+                    bucket.remove(at: index)
+                }
+                bucket.insert(phrase, at: 0)
+            }
+            self[key] = bucket
+        }
+    }
 }
