@@ -3,7 +3,13 @@ import UIKit
 final class KeyboardViewController: UIInputViewController {
     private let layoutProvider = KeyboardLayoutProvider()
     private let emojiProvider = EmojiProvider()
-    private let engine: InputEngine = RimeEngine.shared
+    private let engine: InputEngine = {
+        let engine = RimeEngine.shared
+        if let bridge = AppGroupRimeBridge() {
+            engine.registerNativeBridge(bridge)
+        }
+        return engine
+    }()
     private let appearance = KeyboardAppearance()
 
     private var keyboardStackView: UIStackView!

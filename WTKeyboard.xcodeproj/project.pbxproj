@@ -26,6 +26,11 @@
 			path = WTRimeKeyboard;
 			sourceTree = "<group>";
 		};
+		74BB15A42EE1A5B200ABF751 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +80,7 @@
 			children = (
 				74BB15652EE1805400ABF751 /* WTKeyboard */,
 				74BB158B2EE1805700ABF751 /* WTRimeKeyboard */,
+				74BB15A42EE1A5B200ABF751 /* Shared */,
 				74BB15642EE1805400ABF751 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -107,6 +113,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				74BB15652EE1805400ABF751 /* WTKeyboard */,
+				74BB15A42EE1A5B200ABF751 /* Shared */,
 			);
 			name = WTKeyboard;
 			packageProductDependencies = (
@@ -129,6 +136,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				74BB158B2EE1805700ABF751 /* WTRimeKeyboard */,
+				74BB15A42EE1A5B200ABF751 /* Shared */,
 			);
 			name = WTKeyboardExtension;
 			packageProductDependencies = (
@@ -225,6 +233,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_ENTITLEMENTS = WTKeyboard/WTKeyboard.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3LZJ4J9V46;
@@ -261,6 +270,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_ENTITLEMENTS = WTKeyboard/WTKeyboard.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3LZJ4J9V46;
@@ -415,6 +425,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_ENTITLEMENTS = WTRimeKeyboard/WTRimeKeyboard.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3LZJ4J9V46;
@@ -445,6 +456,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_ENTITLEMENTS = WTRimeKeyboard/WTRimeKeyboard.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3LZJ4J9V46;
