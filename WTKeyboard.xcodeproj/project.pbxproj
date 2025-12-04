@@ -10,22 +10,9 @@
 		74BB15632EE1805400ABF751 /* WTKeyboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WTKeyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		74BB15752EE1805600ABF751 /* Exceptions for "WTKeyboard" folder in "WTKeyboard" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 74BB15622EE1805400ABF751 /* WTKeyboard */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		74BB15652EE1805400ABF751 /* WTKeyboard */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				74BB15752EE1805600ABF751 /* Exceptions for "WTKeyboard" folder in "WTKeyboard" target */,
-			);
 			path = WTKeyboard;
 			sourceTree = "<group>";
 		};
