@@ -6,14 +6,24 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		74BB15922EE1805700ABF751 /* WTKeyboardExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 74BB158C2EE1805700ABF751 /* WTKeyboardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		74BB15632EE1805400ABF751 /* WTKeyboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WTKeyboard.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		74BB158C2EE1805700ABF751 /* WTKeyboardExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WTKeyboardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		74BB15652EE1805400ABF751 /* WTKeyboard */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = WTKeyboard;
+			sourceTree = "<group>";
+		};
+		74BB158B2EE1805700ABF751 /* WTRimeKeyboard */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WTRimeKeyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,13 +36,45 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		74BB15872EE1805700ABF751 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		74BB15912EE1805700ABF751 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				74BB15922EE1805700ABF751 /* WTKeyboardExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXContainerItemProxy section */
+		74BB15932EE1805700ABF751 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 74BB155B2EE1805400ABF751 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 74BB15892EE1805700ABF751;
+			remoteInfo = WTKeyboardExtension;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXGroup section */
 		74BB155A2EE1805400ABF751 = {
 			isa = PBXGroup;
 			children = (
 				74BB15652EE1805400ABF751 /* WTKeyboard */,
+				74BB158B2EE1805700ABF751 /* WTRimeKeyboard */,
 				74BB15642EE1805400ABF751 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				74BB15632EE1805400ABF751 /* WTKeyboard.app */,
+				74BB158C2EE1805700ABF751 /* WTKeyboardExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,10 +98,12 @@
 				74BB155F2EE1805400ABF751 /* Sources */,
 				74BB15602EE1805400ABF751 /* Frameworks */,
 				74BB15612EE1805400ABF751 /* Resources */,
+				74BB15912EE1805700ABF751 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				74BB15942EE1805700ABF751 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				74BB15652EE1805400ABF751 /* WTKeyboard */,
@@ -69,6 +114,28 @@
 			productName = WTKeyboard;
 			productReference = 74BB15632EE1805400ABF751 /* WTKeyboard.app */;
 			productType = "com.apple.product-type.application";
+		};
+		74BB15892EE1805700ABF751 /* WTKeyboardExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 74BB158E2EE1805700ABF751 /* Build configuration list for PBXNativeTarget "WTKeyboardExtension" */;
+			buildPhases = (
+				74BB15862EE1805700ABF751 /* Sources */,
+				74BB15872EE1805700ABF751 /* Frameworks */,
+				74BB15882EE1805700ABF751 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				74BB158B2EE1805700ABF751 /* WTRimeKeyboard */,
+			);
+			name = WTKeyboardExtension;
+			packageProductDependencies = (
+			);
+			productName = WTKeyboardExtension;
+			productReference = 74BB158C2EE1805700ABF751 /* WTKeyboardExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +148,9 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					74BB15622EE1805400ABF751 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					74BB15892EE1805700ABF751 = {
 						CreatedOnToolsVersion = 26.0;
 					};
 				};
@@ -100,6 +170,7 @@
 			projectRoot = "";
 			targets = (
 				74BB15622EE1805400ABF751 /* WTKeyboard */,
+				74BB15892EE1805700ABF751 /* WTKeyboardExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -112,10 +183,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		74BB15882EE1805700ABF751 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		74BB15942EE1805700ABF751 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 74BB15892EE1805700ABF751 /* WTKeyboardExtension */;
+			targetProxy = 74BB15932EE1805700ABF751 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXSourcesBuildPhase section */
 		74BB155F2EE1805400ABF751 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		74BB15862EE1805700ABF751 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -316,6 +409,65 @@
 			};
 			name = Release;
 		};
+		74BB158F2EE1805700ABF751 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3LZJ4J9V46;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WTRimeKeyboard/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ddm.similar.keyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "similar dev";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		74BB15902EE1805700ABF751 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3LZJ4J9V46;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WTRimeKeyboard/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ddm.similar.keyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "similar dev";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -333,6 +485,15 @@
 			buildConfigurations = (
 				74BB15772EE1805600ABF751 /* Debug */,
 				74BB15782EE1805600ABF751 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		74BB158E2EE1805700ABF751 /* Build configuration list for PBXNativeTarget "WTKeyboardExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				74BB158F2EE1805700ABF751 /* Debug */,
+				74BB15902EE1805700ABF751 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

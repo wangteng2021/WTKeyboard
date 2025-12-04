@@ -1,0 +1,15 @@
+[
+  { "syllable": "ni", "candidates": ["你", "尼", "呢", "泥"] },
+  { "syllable": "hao", "candidates": ["好", "号", "浩", "豪"] },
+  { "syllable": "nihao", "candidates": ["你好"] },
+  { "syllable": "zhong", "candidates": ["中", "忠", "终", "种"] },
+  { "syllable": "guo", "candidates": ["国", "果", "过", "郭"] },
+  { "syllable": "zhongguo", "candidates": ["中国"] },
+  { "syllable": "shi", "candidates": ["是", "市", "事", "时"] },
+  { "syllable": "jie", "candidates": ["界", "解", "接", "街"] },
+  { "syllable": "shijie", "candidates": ["世界"] },
+  { "syllable": "zhongguohao", "candidates": ["中国好"] },
+  { "syllable": "ai", "candidates": ["爱", "矮", "碍"] },
+  { "syllable": "qing", "candidates": ["情", "请", "清", "轻"] },
+  { "syllable": "aiqing", "candidates": ["爱情"] }
+]
