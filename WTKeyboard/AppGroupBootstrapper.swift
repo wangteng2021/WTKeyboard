@@ -4,6 +4,13 @@ enum AppGroupBootstrapper {
     private static let fileManager = FileManager.default
 
     static func installSharedLexiconIfNeeded() {
+        defer {
+            do {
+                try ensureUserPhraseContainer()
+            } catch {
+                print("[AppGroupBootstrapper] Failed to prepare user phrase store: \(error)")
+            }
+        }
         guard let source = Bundle.main.url(forResource: "rime_lexicon", withExtension: "json"),
               let destination = AppGroup.fileURL(appending: AppGroup.Resource.lexicon) else {
             #if DEBUG
@@ -47,5 +54,17 @@ enum AppGroupBootstrapper {
             try fileManager.removeItem(at: destination)
         }
         try fileManager.copyItem(at: source, to: destination)
+    }
+
+    private static func ensureUserPhraseContainer() throws {
+        guard let url = AppGroup.fileURL(appending: AppGroup.Resource.userPhrases) else { return }
+        let directory = url.deletingLastPathComponent()
+        if !fileManager.fileExists(atPath: directory.path) {
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+        }
+        if !fileManager.fileExists(atPath: url.path) {
+            let data = try JSONEncoder().encode([String: [String]]())
+            try data.write(to: url, options: .atomic)
+        }
     }
 }

@@ -5,7 +5,9 @@ final class KeyboardViewController: UIInputViewController {
     private let emojiProvider = EmojiProvider()
     private let engine: InputEngine = {
         let engine = RimeEngine.shared
-        if let bridge = AppGroupRimeBridge() {
+        if let librime = LibrimeBridge() {
+            engine.registerNativeBridge(librime)
+        } else if let bridge = AppGroupRimeBridge() {
             engine.registerNativeBridge(bridge)
         }
         return engine

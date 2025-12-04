@@ -2,16 +2,18 @@ import Foundation
 
 final class AppGroupRimeBridge: RimeNativeBridge {
     private let decoder = JSONDecoder()
-    private let fileURL: URL
+    private let lexiconURL: URL
+    private let userPhraseURL: URL?
     private var lexicon: [String: [String]] = [:]
-    private var lastSignature: FileSignature?
+    private var lastSignature: SignaturePair?
     private let queue = DispatchQueue(label: "com.ddm.similar.rime.bridge", qos: .userInitiated)
 
-    init?(relativePath: String = AppGroup.Resource.lexicon) {
+    init?(relativePath: String = AppGroup.Resource.lexicon, userPhrasePath: String = AppGroup.Resource.userPhrases) {
         guard let url = AppGroup.fileURL(appending: relativePath) else {
             return nil
         }
-        fileURL = url
+        lexiconURL = url
+        userPhraseURL = AppGroup.fileURL(appending: userPhrasePath)
         queue.sync {
             reloadLexicon(force: true)
         }
@@ -32,15 +34,19 @@ final class AppGroupRimeBridge: RimeNativeBridge {
 
     private func reloadLexicon(force: Bool) {
         guard force || needsReload() else { return }
-        guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            lexicon = [:]
-            lastSignature = nil
-            return
-        }
         do {
-            let data = try Data(contentsOf: fileURL)
-            let entries = try decoder.decode([LexiconEntry].self, from: data)
-            lexicon = Self.buildLexicon(from: entries)
+            var table: [String: [String]] = [:]
+            if FileManager.default.fileExists(atPath: lexiconURL.path) {
+                let data = try Data(contentsOf: lexiconURL)
+                let entries = try decoder.decode([LexiconEntry].self, from: data)
+                table = Self.buildLexicon(from: entries)
+            }
+            if let userURL = userPhraseURL, FileManager.default.fileExists(atPath: userURL.path) {
+                let data = try Data(contentsOf: userURL)
+                let userLexicon = try decoder.decode([String: [String]].self, from: data)
+                table.mergeSnapshot(userLexicon)
+            }
+            lexicon = table
             lastSignature = currentSignature()
         } catch {
             #if DEBUG
@@ -50,25 +56,16 @@ final class AppGroupRimeBridge: RimeNativeBridge {
     }
 
     private func needsReload() -> Bool {
-        guard let current = currentSignature() else {
-            return lastSignature != nil
-        }
-        guard let lastSignature else {
-            return true
-        }
+        let current = currentSignature()
+        guard let lastSignature else { return current.lexicon != nil || current.user != nil }
         return current != lastSignature
     }
 
-    private func currentSignature() -> FileSignature? {
-        do {
-            let values = try fileURL.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])
-            guard let date = values.contentModificationDate, let size = values.fileSize else {
-                return nil
-            }
-            return FileSignature(size: UInt64(size), modifiedAt: date)
-        } catch {
-            return nil
-        }
+    private func currentSignature() -> SignaturePair {
+        SignaturePair(
+            lexicon: signature(for: lexiconURL),
+            user: signature(for: userPhraseURL)
+        )
     }
 
     private func normalize(_ value: String) -> String {
@@ -98,7 +95,40 @@ private struct FileSignature: Equatable {
     let modifiedAt: Date
 }
 
+private struct SignaturePair: Equatable {
+    let lexicon: FileSignature?
+    let user: FileSignature?
+}
+
 private struct LexiconEntry: Decodable {
     let syllable: String
     let candidates: [String]
+}
+
+private func signature(for url: URL?) -> FileSignature? {
+    guard let url else { return nil }
+    do {
+        let values = try url.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])
+        guard let date = values.contentModificationDate, let size = values.fileSize else {
+            return nil
+        }
+        return FileSignature(size: UInt64(size), modifiedAt: date)
+    } catch {
+        return nil
+    }
+}
+
+private extension Dictionary where Key == String, Value == [String] {
+    mutating func mergeSnapshot(_ snapshot: [String: [String]]) {
+        for (key, phrases) in snapshot {
+            var bucket = self[key] ?? []
+            for phrase in phrases.reversed() {
+                if let index = bucket.firstIndex(of: phrase) {
+                    bucket.remove(at: index)
+                }
+                bucket.insert(phrase, at: 0)
+            }
+            self[key] = bucket
+        }
+    }
 }
