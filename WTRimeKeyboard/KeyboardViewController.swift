@@ -7,8 +7,10 @@ final class KeyboardViewController: UIInputViewController {
         let engine = RimeEngine.shared
         if let librime = LibrimeBridge() {
             engine.registerNativeBridge(librime)
-        } else if let bridge = AppGroupRimeBridge() {
-            engine.registerNativeBridge(bridge)
+        } else {
+            #if DEBUG
+            print("[Keyboard] No native Rime bridge available; falling back to SQLite lexicon.")
+            #endif
         }
         return engine
     }()
@@ -151,12 +153,37 @@ final class KeyboardViewController: UIInputViewController {
             let rowStack = UIStackView()
             rowStack.axis = .horizontal
             rowStack.spacing = 6
-            rowStack.distribution = .fillEqually
+            rowStack.distribution = .fillProportionally
+            rowStack.isLayoutMarginsRelativeArrangement = true
+            rowStack.layoutMargins = UIEdgeInsets(top: 0, left: row.leadingInset, bottom: 0, right: row.trailingInset)
+
+            var referenceContainer: UIView?
+            var referenceMultiplier: CGFloat = 1
 
             for key in row.keys {
+                let container = UIView()
+                container.translatesAutoresizingMaskIntoConstraints = false
+
                 let button = KeyboardButton(key: key, appearance: appearance)
                 button.addTarget(self, action: #selector(handleKeyTap(_:)), for: .touchUpInside)
-                rowStack.addArrangedSubview(button)
+                container.addSubview(button)
+
+                NSLayoutConstraint.activate([
+                    button.topAnchor.constraint(equalTo: container.topAnchor),
+                    button.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+                    button.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                    button.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+                ])
+
+                rowStack.addArrangedSubview(container)
+
+                if let reference = referenceContainer {
+                    let ratio = key.widthMultiplier / referenceMultiplier
+                    container.widthAnchor.constraint(equalTo: reference.widthAnchor, multiplier: ratio).isActive = true
+                } else {
+                    referenceContainer = container
+                    referenceMultiplier = key.widthMultiplier
+                }
             }
 
             keyboardStackView.addArrangedSubview(rowStack)

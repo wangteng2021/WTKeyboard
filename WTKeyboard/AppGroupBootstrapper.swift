@@ -11,20 +11,25 @@ enum AppGroupBootstrapper {
                 print("[AppGroupBootstrapper] Failed to prepare user phrase store: \(error)")
             }
         }
-        guard let source = Bundle.main.url(forResource: "rime_lexicon", withExtension: "json"),
-              let destination = AppGroup.fileURL(appending: AppGroup.Resource.lexicon) else {
+        syncResource(resourceName: "rime_lexicon", fileExtension: "json", destination: AppGroup.Resource.lexicon)
+        syncResource(resourceName: "rime_lexicon", fileExtension: "sqlite", destination: AppGroup.Resource.sqliteLexicon)
+    }
+
+    private static func syncResource(resourceName: String, fileExtension: String, destination: String) {
+        guard let source = Bundle.main.url(forResource: resourceName, withExtension: fileExtension),
+              let destinationURL = AppGroup.fileURL(appending: destination) else {
             #if DEBUG
-            print("[AppGroupBootstrapper] Missing source or destination URL for lexicon copy")
+            print("[AppGroupBootstrapper] Missing source or destination URL for \(resourceName).\(fileExtension)")
             #endif
             return
         }
 
         do {
-            if try needsCopy(from: source, to: destination) {
-                try copyLexicon(from: source, to: destination)
+            if try needsCopy(from: source, to: destinationURL) {
+                try copyLexicon(from: source, to: destinationURL)
             }
         } catch {
-            print("[AppGroupBootstrapper] Failed to sync lexicon: \(error)")
+            print("[AppGroupBootstrapper] Failed to sync \(resourceName).\(fileExtension): \(error)")
         }
     }
 

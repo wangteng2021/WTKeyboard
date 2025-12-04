@@ -17,6 +17,7 @@ enum AppGroup {
 
     enum Resource {
         static let lexicon = "Lexicon/rime_lexicon.json"
+        static let sqliteLexicon = "Lexicon/rime_lexicon.sqlite"
         static let userPhrases = "Lexicon/user_phrases.json"
     }
 }
