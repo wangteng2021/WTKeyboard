@@ -5,15 +5,41 @@ final class KeyboardViewController: UIInputViewController {
     private let emojiProvider = EmojiProvider()
     private let engine: InputEngine = {
         let engine = RimeEngine.shared
+        
+        // 优先级：原生 Rime > 在线词库 > SQLite 本地词库
         if let librime = LibrimeBridge() {
             engine.registerNativeBridge(librime)
+        } else if let onlineService = createOnlineLexiconService() {
+            engine.registerNativeBridge(onlineService)
         } else {
             #if DEBUG
-            print("[Keyboard] No native Rime bridge available; falling back to SQLite lexicon.")
+            print("[Keyboard] No native Rime bridge or online service available; falling back to SQLite lexicon.")
             #endif
         }
         return engine
     }()
+    
+    private static func createOnlineLexiconService() -> RimeNativeBridge? {
+        // 方式1: 使用自定义 API（推荐）
+        // 替换为你的 API 地址
+        if let apiURL = ProcessInfo.processInfo.environment["LEXICON_API_URL"] {
+            return OnlineLexiconService.customAPI(baseURL: apiURL, apiKey: ProcessInfo.processInfo.environment["LEXICON_API_KEY"])
+        }
+        
+        // 方式2: 使用百度 NLP（需要申请 API Key）
+        // if let baiduKey = ProcessInfo.processInfo.environment["BAIDU_API_KEY"],
+        //    let baiduSecret = ProcessInfo.processInfo.environment["BAIDU_SECRET_KEY"] {
+        //     return OnlineLexiconService.baiduNLP(apiKey: baiduKey, secretKey: baiduSecret)
+        // }
+        
+        // 方式3: 使用腾讯云 NLP（需要申请）
+        // if let tencentId = ProcessInfo.processInfo.environment["TENCENT_SECRET_ID"],
+        //    let tencentKey = ProcessInfo.processInfo.environment["TENCENT_SECRET_KEY"] {
+        //     return OnlineLexiconService.tencentNLP(secretId: tencentId, secretKey: tencentKey)
+        // }
+        
+        return nil
+    }
     private let appearance = KeyboardAppearance()
 
     private var keyboardStackView: UIStackView!
