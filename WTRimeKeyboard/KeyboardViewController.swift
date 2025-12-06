@@ -3,43 +3,30 @@ import UIKit
 final class KeyboardViewController: UIInputViewController {
     private let layoutProvider = KeyboardLayoutProvider()
     private let emojiProvider = EmojiProvider()
-    private let engine: InputEngine = {
-        let engine = RimeEngine.shared
-        
-        // 优先级：原生 Rime > 在线词库 > SQLite 本地词库
-        if let librime = LibrimeBridge() {
-            engine.registerNativeBridge(librime)
-        } else if let onlineService = createOnlineLexiconService() {
-            engine.registerNativeBridge(onlineService)
+    
+    // 使用本地 rime-ice 词库服务
+    private let lexiconService: LocalLexiconService? = {
+        #if DEBUG
+        print("[Keyboard] Initializing LocalLexiconService...")
+        #endif
+        let service = LocalLexiconService()
+        #if DEBUG
+        if service == nil {
+            print("[Keyboard] ❌ Failed to initialize LocalLexiconService")
+            print("[Keyboard] Troubleshooting:")
+            print("  1. Check if SQLite file exists in Bundle or App Group")
+            print("  2. Verify App Group configuration in entitlements")
+            print("  3. Ensure AppGroupBootstrapper.installSharedLexiconIfNeeded() was called")
         } else {
-            #if DEBUG
-            print("[Keyboard] No native Rime bridge or online service available; falling back to SQLite lexicon.")
-            #endif
+            print("[Keyboard] ✅ LocalLexiconService initialized successfully")
         }
-        return engine
+        #endif
+        return service
     }()
     
-    private static func createOnlineLexiconService() -> RimeNativeBridge? {
-        // 方式1: 使用自定义 API（推荐）
-        // 替换为你的 API 地址
-        if let apiURL = ProcessInfo.processInfo.environment["LEXICON_API_URL"] {
-            return OnlineLexiconService.customAPI(baseURL: apiURL, apiKey: ProcessInfo.processInfo.environment["LEXICON_API_KEY"])
-        }
-        
-        // 方式2: 使用百度 NLP（需要申请 API Key）
-        // if let baiduKey = ProcessInfo.processInfo.environment["BAIDU_API_KEY"],
-        //    let baiduSecret = ProcessInfo.processInfo.environment["BAIDU_SECRET_KEY"] {
-        //     return OnlineLexiconService.baiduNLP(apiKey: baiduKey, secretKey: baiduSecret)
-        // }
-        
-        // 方式3: 使用腾讯云 NLP（需要申请）
-        // if let tencentId = ProcessInfo.processInfo.environment["TENCENT_SECRET_ID"],
-        //    let tencentKey = ProcessInfo.processInfo.environment["TENCENT_SECRET_KEY"] {
-        //     return OnlineLexiconService.tencentNLP(secretId: tencentId, secretKey: tencentKey)
-        // }
-        
-        return nil
-    }
+    // 用户词库缓存（简单的内存缓存）
+    private var userLexicon: [String: [String]] = [:]
+    private let userLexiconQueue = DispatchQueue(label: "com.wtkeyboard.userlexicon")
     private let appearance = KeyboardAppearance()
 
     private var keyboardStackView: UIStackView!
@@ -283,7 +270,12 @@ final class KeyboardViewController: UIInputViewController {
         if commitBestCandidate() {
             textDocumentProxy.insertText(" ")
         } else {
-            textDocumentProxy.insertText(" ")
+            // 如果没有候选词，直接输入空格和原始输入
+            if !currentInput.isEmpty {
+                textDocumentProxy.insertText(currentInput + " ")
+            } else {
+                textDocumentProxy.insertText(" ")
+            }
         }
         currentInput = ""
     }
@@ -325,8 +317,37 @@ final class KeyboardViewController: UIInputViewController {
             textDocumentProxy.setMarkedText("", selectedRange: NSRange(location: 0, length: 0))
             return
         }
-        let results = engine.suggestions(for: currentInput, limit: 8)
-        candidates = results
+        
+        // 使用本地 rime-ice 词库
+        let normalized = normalizeInput(currentInput)
+        #if DEBUG
+        print("[Keyboard] Getting candidates for input: '\(currentInput)' (normalized: '\(normalized)')")
+        #endif
+        
+        var results: [String] = []
+        if let service = lexiconService {
+            results = service.search(for: normalized, limit: 8)
+        }
+        
+        // 合并用户词库
+        var finalCandidates = results
+        userLexiconQueue.sync {
+            if let userCandidates = userLexicon[normalized], !userCandidates.isEmpty {
+                // 将用户词库的候选词放在前面
+                finalCandidates = userCandidates + results.filter { !userCandidates.contains($0) }
+            }
+        }
+        
+        candidates = Array(finalCandidates.prefix(8))
+        #if DEBUG
+        print("[Keyboard] Input: '\(currentInput)', Candidates: \(candidates)")
+        #endif
+    }
+    
+    private func normalizeInput(_ input: String) -> String {
+        return input.lowercased()
+            .replacingOccurrences(of: "'", with: "")
+            .replacingOccurrences(of: " ", with: "")
     }
 
     private func updateMarkedText() {
@@ -340,7 +361,18 @@ final class KeyboardViewController: UIInputViewController {
     private func commitCandidate(_ candidate: String, sourceInput: String) {
         guard !candidate.isEmpty else { return }
         textDocumentProxy.insertText(candidate)
-        engine.registerUserCandidate(candidate, for: sourceInput)
+        
+        // 保存到用户词库
+        let normalized = normalizeInput(sourceInput)
+        userLexiconQueue.async {
+            var bucket = self.userLexicon[normalized] ?? []
+            if let existingIndex = bucket.firstIndex(of: candidate) {
+                bucket.remove(at: existingIndex)
+            }
+            bucket.insert(candidate, at: 0)
+            self.userLexicon[normalized] = Array(bucket.prefix(10)) // 最多保存10个
+        }
+        
         currentInput = ""
     }
 

@@ -1,105 +1,114 @@
-# 在线词库集成指南
+# 词库集成指南
 
-## 推荐方案
+## 当前状态
 
-### 方案1: 自建 API 服务（推荐）
+**项目已完全使用本地 rime-ice 词库，不再依赖任何在线 API 服务。**
 
-**优点：**
-- 完全可控
-- 可以自定义词库和算法
-- 成本低（使用自己的服务器）
+所有词库功能都通过 `LocalLexiconService` 从本地 SQLite 数据库提供，无需网络连接，响应速度快，隐私安全。
 
-**实现步骤：**
+## 词库来源
 
-1. **创建 API 服务**
-   - 使用 Node.js/Python/Go 等创建简单的 HTTP API
-   - API 格式：`GET /api/suggestions?q=拼音&limit=8`
-   - 返回格式：`{"candidates": ["词1", "词2", ...]}`
+### rime-ice（雾凇拼音）
 
-2. **配置环境变量**
-   ```swift
-   // 在 Xcode Scheme 中设置环境变量
-   LEXICON_API_URL = https://your-api.com/api/suggestions
-   LEXICON_API_KEY = your-api-key (可选)
-   ```
+项目使用 **rime-ice** 作为主要词库来源。rime-ice 是一个高质量的简体中文词库配置项目，整合了多种权威词库，经过人工校对。
 
-3. **代码已自动集成**
-   - `OnlineLexiconService` 会自动使用环境变量中的 API URL
+**特点：**
+- 高质量词库，经过人工校对
+- 词汇丰富，包含常用词、专业术语、网络用语等
+- 持续更新维护
+- 标准 Rime 格式，兼容性好
 
-### 方案2: 使用百度 NLP API
+## 词库文件
 
-**优点：**
-- 官方服务，稳定可靠
-- 支持多种 NLP 功能
-
-**缺点：**
-- 需要申请 API Key
-- 可能有调用限制和费用
-
-**申请地址：** https://ai.baidu.com/
-
-### 方案3: 使用腾讯云 NLP API
-
-**优点：**
-- 企业级服务
-- 功能丰富
-
-**缺点：**
-- 需要申请账号
-- 可能有费用
-
-**申请地址：** https://cloud.tencent.com/product/nlp
-
-### 方案4: 使用开源词库 API
-
-可以考虑使用一些开源的中文词库 API 服务，或者自己部署一个简单的服务。
-
-## 快速开始
-
-### 使用自定义 API
-
-1. 在 `KeyboardViewController.createOnlineLexiconService()` 中配置你的 API URL
-2. 或者通过环境变量设置：
-   - `LEXICON_API_URL`: API 地址
-   - `LEXICON_API_KEY`: API 密钥（可选）
-
-### API 接口规范
-
-**请求：**
+词库以 SQLite 格式存储在：
 ```
-GET /api/suggestions?q=拼音&limit=8
-Headers:
-  Accept: application/json
-  Authorization: Bearer YOUR_API_KEY (可选)
+WTRimeKeyboard/Resources/rime_lexicon.sqlite
 ```
 
-**响应：**
-```json
-{
-  "candidates": ["词1", "词2", "词3"]
-}
+该文件通过 `AppGroupBootstrapper` 自动同步到 App Group 共享目录，供键盘扩展使用。
+
+## 更新词库
+
+### 使用 rime-ice 转换工具
+
+运行转换脚本生成新的词库：
+
+```bash
+cd Tools
+python3 download_and_convert_rime_ice.py
 ```
 
-或者简单数组格式：
-```json
-["词1", "词2", "词3"]
+脚本会自动：
+1. 从 GitHub 下载 rime-ice 最新版本
+2. 提取所有词库文件（dict.yaml）
+3. 合并并去重
+4. 转换为 SQLite 格式
+5. 保存到项目目录
+
+### 使用本地已下载的文件
+
+如果您已经手动下载了 rime-ice：
+
+```bash
+cd Tools
+python3 download_and_convert_rime_ice.py /path/to/rime-ice
 ```
 
 ## 代码结构
 
-- `OnlineLexiconService.swift`: 在线词库服务实现
-- `OnlineLexiconBridge.swift`: 桥接器（可选，用于更复杂的场景）
+- `LocalLexiconService.swift`: 本地 SQLite 词库服务实现
+- `OnlineLexiconService.swift`: 已弃用，保留仅用于向后兼容
+- `AppGroupBootstrapper.swift`: 负责词库文件的同步和初始化
+
+## 使用方式
+
+在 `KeyboardViewController` 中，词库服务会自动初始化：
+
+```swift
+private let lexiconService: LocalLexiconService? = LocalLexiconService()
+```
+
+词库查询通过 `RimeNativeBridge` 协议进行：
+
+```swift
+let candidates = lexiconService?.search(for: "nihao", limit: 8) ?? []
+```
 
 ## 注意事项
 
-1. **网络权限**：确保键盘扩展有网络访问权限
-2. **超时设置**：默认 1.5 秒超时，避免影响输入体验
-3. **缓存机制**：已实现本地缓存，减少网络请求
-4. **降级策略**：在线服务失败时，会自动降级到本地 SQLite 词库
+1. **文件大小**：rime-ice 词库较大，SQLite 文件可能达到几十 MB
+2. **构建时间**：首次转换可能需要几分钟时间
+3. **内存使用**：转换过程中会占用较多内存
+4. **网络要求**：转换工具需要能够访问 GitHub（仅转换时需要）
 
-## 测试
+## 故障排除
 
-在 Xcode 中设置环境变量进行测试：
-1. Edit Scheme → Run → Arguments → Environment Variables
-2. 添加 `LEXICON_API_URL` 和 `LEXICON_API_KEY`
+### 问题：词库查询返回空结果
 
+**解决方案：**
+- 检查 SQLite 文件是否已正确添加到 Xcode 项目
+- 确认 `AppGroupBootstrapper.installSharedLexiconIfNeeded()` 已调用
+- 检查 App Group 共享目录中是否存在词库文件
+
+### 问题：词库文件找不到
+
+**解决方案：**
+- 确认 SQLite 文件在 `WTRimeKeyboard/Resources/` 目录下
+- 检查文件是否已添加到 Xcode 项目的 Target 中
+- 查看控制台日志中的错误信息
+
+## 相关链接
+
+- rime-ice GitHub: https://github.com/iDvel/rime-ice
+- Rime 输入法官网: https://rime.im/
+- 项目词库转换工具: `Tools/convert_rime_dict.swift`
+- rime-ice 集成指南: `RIME_ICE_SETUP.md`
+
+## 历史说明
+
+**已移除的功能：**
+- 百度 API 支持（NLP、翻译等）
+- 腾讯云 NLP API 支持
+- 所有在线词库服务
+
+这些功能已被本地 rime-ice 词库完全替代，提供更好的性能、隐私和可靠性。

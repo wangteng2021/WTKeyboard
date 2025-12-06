@@ -1,7 +1,8 @@
 import Foundation
 
 enum AppGroup {
-    static let identifier = "group.com.ddm.similar"
+    // 注意：必须与 entitlements 文件中的 App Group 标识符一致
+    static let identifier = "group.com.ddm.account"
 
     static var userDefaults: UserDefaults? {
         UserDefaults(suiteName: identifier)

@@ -54,23 +54,7 @@ final class OnlineLexiconBridge: RimeNativeBridge {
     }
 }
 
-/// 示例：百度翻译 API 词库提供者
-final class BaiduTranslationProvider: OnlineLexiconProvider {
-    private let apiKey: String
-    private let appId: String
-    private let session = URLSession.shared
-    
-    init(apiKey: String, appId: String) {
-        self.apiKey = apiKey
-        self.appId = appId
-    }
-    
-    func search(for input: String, limit: Int, completion: @escaping (Result<[String], Error>) -> Void) {
-        // 这里可以实现百度翻译 API 调用
-        // 注意：百度翻译主要用于翻译，不是专门的输入法词库
-        completion(.success([]))
-    }
-}
+// 百度相关代码已移除，请使用 LocalLexiconService
 
 /// 示例：自定义 API 词库提供者
 final class CustomAPIProvider: OnlineLexiconProvider {

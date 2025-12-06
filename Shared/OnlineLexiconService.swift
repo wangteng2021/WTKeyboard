@@ -1,11 +1,11 @@
 import Foundation
 
-/// 在线词库服务 - 支持多种后端
+/// 在线词库服务 - 已弃用，请使用 LocalLexiconService
+/// 保留此文件仅用于向后兼容，实际功能已迁移到本地 rime-ice 词库
+@available(*, deprecated, message: "请使用 LocalLexiconService 替代")
 final class OnlineLexiconService: RimeNativeBridge {
     private enum ServiceType {
         case customAPI(baseURL: String, apiKey: String?)
-        case baiduNLP(apiKey: String, secretKey: String)
-        case tencentNLP(secretId: String, secretKey: String)
     }
     
     private let serviceType: ServiceType
@@ -20,19 +20,10 @@ final class OnlineLexiconService: RimeNativeBridge {
     
     // MARK: - 便捷初始化方法
     
-    /// 使用自定义 API
+    /// 使用自定义 API（已弃用）
+    @available(*, deprecated, message: "请使用 LocalLexiconService 替代")
     static func customAPI(baseURL: String, apiKey: String? = nil) -> OnlineLexiconService {
         OnlineLexiconService(serviceType: .customAPI(baseURL: baseURL, apiKey: apiKey))
-    }
-    
-    /// 使用百度 NLP API（需要申请）
-    static func baiduNLP(apiKey: String, secretKey: String) -> OnlineLexiconService {
-        OnlineLexiconService(serviceType: .baiduNLP(apiKey: apiKey, secretKey: secretKey))
-    }
-    
-    /// 使用腾讯云 NLP API（需要申请）
-    static func tencentNLP(secretId: String, secretKey: String) -> OnlineLexiconService {
-        OnlineLexiconService(serviceType: .tencentNLP(secretId: secretId, secretKey: secretKey))
     }
     
     // MARK: - RimeNativeBridge
@@ -82,10 +73,6 @@ final class OnlineLexiconService: RimeNativeBridge {
         switch serviceType {
         case .customAPI(let baseURL, let apiKey):
             searchCustomAPI(baseURL: baseURL, apiKey: apiKey, input: input, limit: limit, completion: completion)
-        case .baiduNLP(let apiKey, let secretKey):
-            searchBaiduNLP(apiKey: apiKey, secretKey: secretKey, input: input, limit: limit, completion: completion)
-        case .tencentNLP(let secretId, let secretKey):
-            searchTencentNLP(secretId: secretId, secretKey: secretKey, input: input, limit: limit, completion: completion)
         }
     }
     
@@ -168,19 +155,4 @@ final class OnlineLexiconService: RimeNativeBridge {
             }
         }.resume()
     }
-    
-    private func searchBaiduNLP(apiKey: String, secretKey: String, input: String, limit: Int, completion: @escaping (Result<[String], Error>) -> Void) {
-        // 百度 NLP API 实现
-        // 需要先获取 access_token，然后调用相关 API
-        // 这里只是示例框架
-        completion(.success([]))
-    }
-    
-    private func searchTencentNLP(secretId: String, secretKey: String, input: String, limit: Int, completion: @escaping (Result<[String], Error>) -> Void) {
-        // 腾讯云 NLP API 实现
-        // 需要签名和调用相关 API
-        // 这里只是示例框架
-        completion(.success([]))
-    }
 }
-

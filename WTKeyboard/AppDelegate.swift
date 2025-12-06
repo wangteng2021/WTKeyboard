@@ -13,7 +13,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // 初始化本地 rime-ice 词库
+        #if DEBUG
+        print("[AppDelegate] Initializing shared lexicon...")
+        #endif
         AppGroupBootstrapper.installSharedLexiconIfNeeded()
+        #if DEBUG
+        print("[AppDelegate] Shared lexicon initialization completed")
+        #endif
         return true
     }
 
